@@ -110,7 +110,74 @@ namespace hastaTakipSistemi
             ToolTip tt = new ToolTip();
             tt.SetToolTip(btnGoz, "Şifreyi Göster/Gizle");
             tt.SetToolTip(txtKulAd, "Kullanıcı adınızı girin");
+            tt.SetToolTip(txtSifre, "Şifrenizi girin");
 
+            // Apply modern visual improvements
+            ApplyModernStyling();
+        }
+
+        private void ApplyModernStyling()
+        {
+            // Set modern form styling
+            this.BackColor = Color.FromArgb(240, 244, 248); // Light modern background
+            
+            // Style text boxes with modern appearance
+            StyleTextBox(txtKulAd);
+            StyleTextBox(txtSifre);
+            
+            // Style buttons with gradient and hover effects
+            StylePrimaryButton(btnGiriş);
+            StyleSecondaryButton(btnKayıtOl);
+            
+            // Style the eye button
+            btnGoz.FlatStyle = FlatStyle.Flat;
+            btnGoz.FlatAppearance.BorderSize = 0;
+            btnGoz.BackColor = Color.Transparent;
+            btnGoz.Cursor = Cursors.Hand;
+        }
+
+        private void StyleTextBox(TextBox textBox)
+        {
+            textBox.BorderStyle = BorderStyle.None;
+            textBox.BackColor = Color.White;
+            textBox.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+            textBox.ForeColor = Color.FromArgb(64, 64, 64);
+            
+            // Add padding appearance by using a panel wrapper if needed
+            if (textBox.Parent is Panel panel)
+            {
+                panel.BackColor = Color.White;
+                panel.BorderStyle = BorderStyle.FixedSingle;
+                panel.Padding = new Padding(8);
+            }
+        }
+
+        private void StylePrimaryButton(Button button)
+        {
+            button.BackColor = Color.FromArgb(33, 150, 243); // Modern blue
+            button.ForeColor = Color.White;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            button.Cursor = Cursors.Hand;
+            
+            // Add hover effects
+            button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(25, 118, 210);
+            button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(33, 150, 243);
+        }
+
+        private void StyleSecondaryButton(Button button)
+        {
+            button.BackColor = Color.FromArgb(96, 125, 139); // Modern grey
+            button.ForeColor = Color.White;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            button.Cursor = Cursors.Hand;
+            
+            // Add hover effects
+            button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(69, 90, 100);
+            button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(96, 125, 139);
         }
 
         private void btnGoz_Click(object sender, EventArgs e)

@@ -37,6 +37,9 @@ namespace hastaTakipSistemi
         {
             try
             {
+                // Show loading indicator
+                ShowLoadingMessage("Güncelleme işlemi devam ediyor...");
+                
                 SqlCommand guncelle = new SqlCommand("guncelle", bgl.baglan());
                 guncelle.CommandType = CommandType.StoredProcedure;
                 guncelle.Parameters.AddWithValue("id", int.Parse(txtID.Text));
@@ -63,18 +66,22 @@ namespace hastaTakipSistemi
                 // Log the action
                 AuditLogger.LogPatientAction("Hasta Güncellendi", $"ID: {txtID.Text}, Ad: {txtAD.Text} {txtSoyad.Text}, TC: {txtTC.Text}");
                 
-                MessageBox.Show("Güncelleme işlemi başarılı", "Güncelleme Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Hide loading and show success
+                HideLoadingMessage();
+                ShowSuccessMessage("Güncelleme işlemi başarıyla tamamlandı!", "Güncelleme Başarılı");
                 Listele();
                 temizle(); // Clear form after successful update
             }
             catch(SqlException ex)
             {
+                HideLoadingMessage();
                 AuditLogger.LogPatientAction("Hasta Güncelleme Hatası", $"ID: {txtID.Text}, Hata: {ex.Message}");
-                MessageBox.Show($"Veritabanı hatası: {ex.Message}", "Güncelleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowErrorMessage($"Veritabanı hatası: {ex.Message}", "Güncelleme Hatası");
             }
             catch(Exception ex)
             {
-                MessageBox.Show($"Beklenmeyen hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                HideLoadingMessage();
+                ShowErrorMessage($"Beklenmeyen hata: {ex.Message}", "Hata");
             }
         }
 
@@ -99,6 +106,9 @@ namespace hastaTakipSistemi
         {
             try
             {
+                // Apply modern visual styling first
+                ApplyModernTheme();
+                
                 // Load initial data
                 Listele();
                 durumDoldur();
@@ -127,6 +137,11 @@ namespace hastaTakipSistemi
             tt.SetToolTip(txtTelefon, "Telefon numarası (örn: 05xxxxxxxxx)");
             tt.SetToolTip(txtYas, "0-150 arası sayı");
             tt.SetToolTip(dataGridView1, "Hasta seçmek için satıra tıklayın");
+            
+            // Enhanced tooltips with modern information
+            tt.IsBalloon = true;
+            tt.ToolTipTitle = "Bilgi";
+            tt.ToolTipIcon = ToolTipIcon.Info;
         }
 
         private void FormatDataGridView()
@@ -137,7 +152,135 @@ namespace hastaTakipSistemi
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.MultiSelect = false;
                 dataGridView1.ReadOnly = true;
+                
+                // Enhanced modern styling for DataGridView
+                dataGridView1.BackgroundColor = Color.White;
+                dataGridView1.BorderStyle = BorderStyle.None;
+                dataGridView1.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+                dataGridView1.DefaultCellStyle.SelectionBackColor = Color.FromArgb(33, 150, 243);
+                dataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
+                dataGridView1.DefaultCellStyle.BackColor = Color.White;
+                dataGridView1.DefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+                dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 9F);
+                dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
+                dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+                dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                dataGridView1.EnableHeadersVisualStyles = false;
+                dataGridView1.RowHeadersVisible = false;
+                dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 250, 250);
             }
+        }
+
+        private void ApplyModernTheme()
+        {
+            // Set form background to modern color
+            this.BackColor = Color.FromArgb(248, 249, 250);
+            
+            // Apply modern styling to all buttons
+            ApplyButtonStyling();
+            
+            // Apply modern styling to text boxes
+            ApplyTextBoxStyling();
+            
+            // Apply modern styling to labels
+            ApplyLabelStyling();
+        }
+
+        private void ApplyButtonStyling()
+        {
+            // Style all buttons with modern appearance
+            foreach (Control control in this.Controls)
+            {
+                StyleControlsRecursively(control);
+            }
+        }
+
+        private void StyleControlsRecursively(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Button button)
+                {
+                    StyleModernButton(button);
+                }
+                else if (control is TextBox textBox)
+                {
+                    StyleModernTextBox(textBox);
+                }
+                else if (control is Label label && !label.Name.Contains("lbl"))
+                {
+                    StyleModernLabel(label);
+                }
+                
+                // Recursively style nested controls
+                if (control.HasChildren)
+                {
+                    StyleControlsRecursively(control);
+                }
+            }
+        }
+
+        private void StyleModernButton(Button button)
+        {
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            button.Cursor = Cursors.Hand;
+            button.Height = Math.Max(button.Height, 35); // Minimum height for better UX
+            
+            // Determine button style based on name or text
+            if (button.Name.Contains("Kaydet") || button.Text.Contains("Kaydet"))
+            {
+                button.BackColor = Color.FromArgb(76, 175, 80); // Green for save
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(67, 160, 71);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(76, 175, 80);
+            }
+            else if (button.Name.Contains("Sil") || button.Text.Contains("Sil"))
+            {
+                button.BackColor = Color.FromArgb(244, 67, 54); // Red for delete
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(229, 57, 53);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(244, 67, 54);
+            }
+            else if (button.Name.Contains("Guncelle") || button.Text.Contains("Güncelle"))
+            {
+                button.BackColor = Color.FromArgb(255, 152, 0); // Orange for update
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(245, 124, 0);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(255, 152, 0);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(33, 150, 243); // Blue for other actions
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(25, 118, 210);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(33, 150, 243);
+            }
+        }
+
+        private void StyleModernTextBox(TextBox textBox)
+        {
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.BackColor = Color.White;
+            textBox.Font = new Font("Segoe UI", 9F);
+            textBox.ForeColor = Color.FromArgb(64, 64, 64);
+        }
+
+        private void StyleModernLabel(Label label)
+        {
+            label.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            label.ForeColor = Color.FromArgb(64, 64, 64);
+        }
+
+        private void ApplyTextBoxStyling()
+        {
+            // This is handled in StyleControlsRecursively
+        }
+
+        private void ApplyLabelStyling()
+        {
+            // This is handled in StyleControlsRecursively
         }
 
 
@@ -529,6 +672,125 @@ namespace hastaTakipSistemi
             if (!string.IsNullOrEmpty(txtTC.Text) && !IsValidTurkishID(txtTC.Text))
             {
                 MessageBox.Show("Geçersiz TC Kimlik No! Lütfen kontrol ediniz.", "TC Doğrulama", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // Visual feedback methods for better user experience
+        private Form loadingForm;
+        
+        private void ShowLoadingMessage(string message)
+        {
+            loadingForm = new Form()
+            {
+                FormBorderStyle = FormBorderStyle.None,
+                BackColor = Color.FromArgb(240, 240, 240),
+                Size = new Size(300, 100),
+                StartPosition = FormStartPosition.CenterParent,
+                TopMost = true
+            };
+            
+            Label lblLoading = new Label()
+            {
+                Text = message,
+                ForeColor = Color.FromArgb(64, 64, 64),
+                Font = new Font("Segoe UI", 10F),
+                AutoSize = false,
+                Size = new Size(280, 80),
+                Location = new Point(10, 10),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            
+            loadingForm.Controls.Add(lblLoading);
+            loadingForm.Show(this);
+            Application.DoEvents();
+        }
+        
+        private void HideLoadingMessage()
+        {
+            loadingForm?.Close();
+            loadingForm?.Dispose();
+            loadingForm = null;
+        }
+        
+        private void ShowSuccessMessage(string message, string title)
+        {
+            using (Form successForm = new Form())
+            {
+                successForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                successForm.BackColor = Color.FromArgb(232, 245, 233);
+                successForm.Size = new Size(350, 150);
+                successForm.StartPosition = FormStartPosition.CenterParent;
+                successForm.Text = title;
+                successForm.MaximizeBox = false;
+                successForm.MinimizeBox = false;
+                
+                Label lblMessage = new Label()
+                {
+                    Text = message,
+                    ForeColor = Color.FromArgb(46, 125, 50),
+                    Font = new Font("Segoe UI", 10F),
+                    AutoSize = false,
+                    Size = new Size(310, 60),
+                    Location = new Point(20, 20),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+                
+                Button btnOK = new Button()
+                {
+                    Text = "Tamam",
+                    BackColor = Color.FromArgb(76, 175, 80),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat,
+                    Size = new Size(80, 30),
+                    Location = new Point(135, 90),
+                    Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                };
+                btnOK.FlatAppearance.BorderSize = 0;
+                btnOK.Click += (s, e) => successForm.Close();
+                
+                successForm.Controls.AddRange(new Control[] { lblMessage, btnOK });
+                successForm.ShowDialog(this);
+            }
+        }
+        
+        private void ShowErrorMessage(string message, string title)
+        {
+            using (Form errorForm = new Form())
+            {
+                errorForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                errorForm.BackColor = Color.FromArgb(255, 235, 238);
+                errorForm.Size = new Size(350, 150);
+                errorForm.StartPosition = FormStartPosition.CenterParent;
+                errorForm.Text = title;
+                errorForm.MaximizeBox = false;
+                errorForm.MinimizeBox = false;
+                
+                Label lblMessage = new Label()
+                {
+                    Text = message,
+                    ForeColor = Color.FromArgb(183, 28, 28),
+                    Font = new Font("Segoe UI", 10F),
+                    AutoSize = false,
+                    Size = new Size(310, 60),
+                    Location = new Point(20, 20),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+                
+                Button btnOK = new Button()
+                {
+                    Text = "Tamam",
+                    BackColor = Color.FromArgb(244, 67, 54),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat,
+                    Size = new Size(80, 30),
+                    Location = new Point(135, 90),
+                    Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                };
+                btnOK.FlatAppearance.BorderSize = 0;
+                btnOK.Click += (s, e) => errorForm.Close();
+                
+                errorForm.Controls.AddRange(new Control[] { lblMessage, btnOK });
+                errorForm.ShowDialog(this);
             }
         }
     }
