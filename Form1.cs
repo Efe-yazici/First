@@ -65,6 +65,9 @@ namespace hastaTakipSistemi
                 SqlDataReader dr = giris.ExecuteReader();
                 if (dr.Read())
                 {
+                    string kullaniciAdi = txtKulAd.Text;
+                    AuditLogger.LogUserAction("Başarılı Giriş", $"Kullanıcı: {kullaniciAdi}");
+                    
                     MessageBox.Show("Giriş işlemi başarılı", "Giriş başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FrmAnaSayfa fr = new FrmAnaSayfa();
                     this.Hide();
@@ -72,6 +75,7 @@ namespace hastaTakipSistemi
                 }
                 else
                 {
+                    AuditLogger.LogUserAction("Başarısız Giriş Denemesi", $"Kullanıcı Adı: {txtKulAd.Text}");
                     MessageBox.Show("Kullanıcı adı veya şifre hatalı!", "Giriş başarısız", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtSifre.Clear(); // Clear password on failed login
                     txtKulAd.Focus(); // Focus back to username

@@ -49,6 +49,10 @@ namespace hastaTakipSistemi
                 kayit.Parameters.AddWithValue("KulAd", txtKulAd.Text);
                 kayit.Parameters.AddWithValue("Sifre", txtSifre.Text);
                 kayit.ExecuteNonQuery();
+                
+                // Log the registration
+                AuditLogger.LogUserAction("Yeni Kullanıcı Kaydı", $"Kullanıcı Adı: {txtKulAd.Text}");
+                
                 MessageBox.Show("Kayıt işlemi başarılı! Giriş yapabilirsiniz.", "Kayıt başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close(); // Close registration form after successful registration
             }

@@ -59,12 +59,17 @@ namespace hastaTakipSistemi
                     guncelle.Parameters.AddWithValue("ex", 0);
                 }
                 guncelle.ExecuteNonQuery();
+                
+                // Log the action
+                AuditLogger.LogPatientAction("Hasta Güncellendi", $"ID: {txtID.Text}, Ad: {txtAD.Text} {txtSoyad.Text}, TC: {txtTC.Text}");
+                
                 MessageBox.Show("Güncelleme işlemi başarılı", "Güncelleme Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Listele();
                 temizle(); // Clear form after successful update
             }
             catch(SqlException ex)
             {
+                AuditLogger.LogPatientAction("Hasta Güncelleme Hatası", $"ID: {txtID.Text}, Hata: {ex.Message}");
                 MessageBox.Show($"Veritabanı hatası: {ex.Message}", "Güncelleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch(Exception ex)
@@ -364,12 +369,17 @@ namespace hastaTakipSistemi
                     kaydet.Parameters.AddWithValue("ex", 0);
                 }
                 kaydet.ExecuteNonQuery();
+                
+                // Log the action
+                AuditLogger.LogPatientAction("Hasta Eklendi", $"Ad: {txtAD.Text} {txtSoyad.Text}, TC: {txtTC.Text}");
+                
                 MessageBox.Show("Kayıt başarıyla eklendi","Kayıt Başarılı",MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Listele();
                 temizle(); // Clear form after successful save
             }
             catch(SqlException ex)
             {
+                AuditLogger.LogPatientAction("Hasta Ekleme Hatası", $"TC: {txtTC.Text}, Hata: {ex.Message}");
                 MessageBox.Show($"Veritabanı hatası: {ex.Message}", "Kayıt Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch(Exception ex)
@@ -395,10 +405,16 @@ namespace hastaTakipSistemi
                 DialogResult dr = MessageBox.Show($"{txtID.Text} numaralı kayıt silinecek. Onaylıyor musunuz?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (dr == DialogResult.Yes)
                 {
+                    string patientInfo = $"ID: {txtID.Text}, Ad: {txtAD.Text} {txtSoyad.Text}, TC: {txtTC.Text}";
+                    
                     SqlCommand sil = new SqlCommand("sil", bgl.baglan());
                     sil.CommandType = CommandType.StoredProcedure;
                     sil.Parameters.AddWithValue("id", int.Parse(txtID.Text));
                     sil.ExecuteNonQuery();
+                    
+                    // Log the action
+                    AuditLogger.LogPatientAction("Hasta Silindi", patientInfo);
+                    
                     MessageBox.Show("Kayıt başarıyla silindi", "Kayıt Silme Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Listele();
                     temizle(); // Clear form after successful deletion
@@ -406,6 +422,7 @@ namespace hastaTakipSistemi
             }
             catch(SqlException ex)
             {
+                AuditLogger.LogPatientAction("Hasta Silme Hatası", $"ID: {txtID.Text}, Hata: {ex.Message}");
                 MessageBox.Show($"Veritabanı hatası: {ex.Message}", "Silme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch(Exception ex)
@@ -422,6 +439,18 @@ namespace hastaTakipSistemi
         private void btnİstatistik_Click(object sender, EventArgs e)
         {
             frmIstatistik fr = new frmIstatistik();
+            fr.Show();
+        }
+
+        private void btnRandevu_Click(object sender, EventArgs e)
+        {
+            frmRandevu fr = new frmRandevu();
+            fr.Show();
+        }
+
+        private void btnYedekleme_Click(object sender, EventArgs e)
+        {
+            frmYedeklemevYonetim fr = new frmYedeklemevYonetim();
             fr.Show();
         }
 
