@@ -50,7 +50,13 @@ namespace hastaTakipSistemi
 
         private void btnGiriş_Click(object sender, EventArgs e)
         {
-            if (txtKulAd.Text != "" && txtSifre.Text != "")
+            if (string.IsNullOrWhiteSpace(txtKulAd.Text) || string.IsNullOrWhiteSpace(txtSifre.Text))
+            {
+                MessageBox.Show("Lütfen tüm alanları doldurunuz !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
             {
                 SqlCommand giris = new SqlCommand("girisYap", bgl.baglan());
                 giris.CommandType = CommandType.StoredProcedure;
@@ -66,14 +72,19 @@ namespace hastaTakipSistemi
                 }
                 else
                 {
-                    MessageBox.Show("Giriş işlemi başarısız", "Giriş başarısız", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Kullanıcı adı veya şifre hatalı!", "Giriş başarısız", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtSifre.Clear(); // Clear password on failed login
+                    txtKulAd.Focus(); // Focus back to username
                 }
             }
-            else
+            catch(SqlException ex)
             {
-                MessageBox.Show("Lütfen tüm alanları doldurunuz !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Veritabanı bağlantı hatası: {ex.Message}", "Bağlantı Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Beklenmeyen hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnKayıtOl_Click(object sender, EventArgs e)
