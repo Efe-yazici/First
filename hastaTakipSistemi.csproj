@@ -101,6 +101,25 @@
     <Compile Include="frmKayit.Designer.cs">
       <DependentUpon>frmKayit.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmRandevu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRandevu.Designer.cs">
+      <DependentUpon>frmRandevu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmStatusSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmStatusSelect.Designer.cs">
+      <DependentUpon>frmStatusSelect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmYedeklemevYonetim.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmYedeklemevYonetim.Designer.cs">
+      <DependentUpon>frmYedeklemevYonetim.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AuditLogger.cs" />
     <Compile Include="frmSqlBaglanti.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

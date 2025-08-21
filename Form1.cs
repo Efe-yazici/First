@@ -50,7 +50,13 @@ namespace hastaTakipSistemi
 
         private void btnGiriş_Click(object sender, EventArgs e)
         {
-            if (txtKulAd.Text != "" && txtSifre.Text != "")
+            if (string.IsNullOrWhiteSpace(txtKulAd.Text) || string.IsNullOrWhiteSpace(txtSifre.Text))
+            {
+                MessageBox.Show("Lütfen tüm alanları doldurunuz !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
             {
                 SqlCommand giris = new SqlCommand("girisYap", bgl.baglan());
                 giris.CommandType = CommandType.StoredProcedure;
@@ -59,6 +65,9 @@ namespace hastaTakipSistemi
                 SqlDataReader dr = giris.ExecuteReader();
                 if (dr.Read())
                 {
+                    string kullaniciAdi = txtKulAd.Text;
+                    AuditLogger.LogUserAction("Başarılı Giriş", $"Kullanıcı: {kullaniciAdi}");
+                    
                     MessageBox.Show("Giriş işlemi başarılı", "Giriş başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FrmAnaSayfa fr = new FrmAnaSayfa();
                     this.Hide();
@@ -66,14 +75,20 @@ namespace hastaTakipSistemi
                 }
                 else
                 {
-                    MessageBox.Show("Giriş işlemi başarısız", "Giriş başarısız", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    AuditLogger.LogUserAction("Başarısız Giriş Denemesi", $"Kullanıcı Adı: {txtKulAd.Text}");
+                    MessageBox.Show("Kullanıcı adı veya şifre hatalı!", "Giriş başarısız", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    txtSifre.Clear(); // Clear password on failed login
+                    txtKulAd.Focus(); // Focus back to username
                 }
             }
-            else
+            catch(SqlException ex)
             {
-                MessageBox.Show("Lütfen tüm alanları doldurunuz !", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Veritabanı bağlantı hatası: {ex.Message}", "Bağlantı Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Beklenmeyen hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnKayıtOl_Click(object sender, EventArgs e)
