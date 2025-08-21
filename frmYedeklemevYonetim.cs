@@ -25,6 +25,9 @@ namespace hastaTakipSistemi
         {
             try
             {
+                // Apply modern theme
+                ApplyModernBackupTheme();
+                
                 // Set default backup location
                 txtBackupPath.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "HastaTakipYedek");
                 
@@ -88,19 +91,119 @@ namespace hastaTakipSistemi
                 if (bgl.BaglantiTest())
                 {
                     lblConnectionStatus.Text = "Bağlantı: Başarılı ✓";
-                    lblConnectionStatus.ForeColor = Color.Green;
+                    lblConnectionStatus.ForeColor = Color.FromArgb(46, 125, 50); // Modern green
+                    lblConnectionStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                 }
                 else
                 {
                     lblConnectionStatus.Text = "Bağlantı: Başarısız ✗";
-                    lblConnectionStatus.ForeColor = Color.Red;
+                    lblConnectionStatus.ForeColor = Color.FromArgb(183, 28, 28); // Modern red
+                    lblConnectionStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
                 }
             }
             catch
             {
                 lblConnectionStatus.Text = "Bağlantı: Bilinmiyor";
-                lblConnectionStatus.ForeColor = Color.Orange;
+                lblConnectionStatus.ForeColor = Color.FromArgb(255, 111, 0); // Modern orange
+                lblConnectionStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             }
+        }
+
+        private void ApplyModernBackupTheme()
+        {
+            // Set form background to modern backup theme color
+            this.BackColor = Color.FromArgb(248, 255, 248); // Light green background for backup theme
+            
+            // Apply backup-themed styling to controls
+            ApplyBackupStyling();
+        }
+
+        private void ApplyBackupStyling()
+        {
+            foreach (Control control in this.Controls)
+            {
+                StyleBackupControlsRecursively(control);
+            }
+        }
+
+        private void StyleBackupControlsRecursively(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Button button)
+                {
+                    StyleBackupButton(button);
+                }
+                else if (control is TextBox textBox)
+                {
+                    StyleBackupTextBox(textBox);
+                }
+                else if (control is ListBox listBox)
+                {
+                    StyleBackupListBox(listBox);
+                }
+                
+                // Recursively style nested controls
+                if (control.HasChildren)
+                {
+                    StyleBackupControlsRecursively(control);
+                }
+            }
+        }
+
+        private void StyleBackupButton(Button button)
+        {
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            button.Cursor = Cursors.Hand;
+            button.Height = Math.Max(button.Height, 35);
+            
+            // Backup-specific color scheme (green theme)
+            if (button.Name.Contains("Create") || button.Text.Contains("Oluştur") || button.Text.Contains("Yedekle"))
+            {
+                button.BackColor = Color.FromArgb(46, 125, 50); // Green for backup creation
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(27, 94, 32);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(46, 125, 50);
+            }
+            else if (button.Name.Contains("Clean") || button.Text.Contains("Temizle"))
+            {
+                button.BackColor = Color.FromArgb(255, 87, 34); // Orange for cleanup
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(230, 74, 25);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(255, 87, 34);
+            }
+            else if (button.Name.Contains("Test") || button.Text.Contains("Test"))
+            {
+                button.BackColor = Color.FromArgb(33, 150, 243); // Blue for testing
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(25, 118, 210);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(33, 150, 243);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(76, 175, 80); // Default green
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(67, 160, 71);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(76, 175, 80);
+            }
+        }
+
+        private void StyleBackupTextBox(TextBox textBox)
+        {
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.BackColor = Color.White;
+            textBox.Font = new Font("Segoe UI", 9F);
+            textBox.ForeColor = Color.FromArgb(64, 64, 64);
+        }
+
+        private void StyleBackupListBox(ListBox listBox)
+        {
+            listBox.BorderStyle = BorderStyle.FixedSingle;
+            listBox.BackColor = Color.White;
+            listBox.Font = new Font("Segoe UI", 9F);
+            listBox.ForeColor = Color.FromArgb(64, 64, 64);
         }
 
         private void btnSelectPath_Click(object sender, EventArgs e)

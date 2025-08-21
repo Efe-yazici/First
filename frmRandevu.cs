@@ -24,6 +24,9 @@ namespace hastaTakipSistemi
         {
             try
             {
+                // Apply modern theme first
+                ApplyModernRandevuTheme();
+                
                 LoadPatients();
                 LoadDoctors();
                 SetDefaultDateTime();
@@ -119,6 +122,22 @@ namespace hastaTakipSistemi
                 dgvRandevular.MultiSelect = false;
                 dgvRandevular.ReadOnly = true;
                 
+                // Enhanced modern styling for appointment grid
+                dgvRandevular.BackgroundColor = Color.White;
+                dgvRandevular.BorderStyle = BorderStyle.None;
+                dgvRandevular.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+                dgvRandevular.DefaultCellStyle.SelectionBackColor = Color.FromArgb(103, 58, 183);
+                dgvRandevular.DefaultCellStyle.SelectionForeColor = Color.White;
+                dgvRandevular.DefaultCellStyle.BackColor = Color.White;
+                dgvRandevular.DefaultCellStyle.ForeColor = Color.FromArgb(64, 64, 64);
+                dgvRandevular.DefaultCellStyle.Font = new Font("Segoe UI", 9F);
+                dgvRandevular.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(103, 58, 183);
+                dgvRandevular.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                dgvRandevular.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                dgvRandevular.EnableHeadersVisualStyles = false;
+                dgvRandevular.RowHeadersVisible = false;
+                dgvRandevular.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 245, 255);
+                
                 // Format date time columns
                 if (dgvRandevular.Columns["RandevuTarihi"] != null)
                     dgvRandevular.Columns["RandevuTarihi"].DefaultCellStyle.Format = "dd/MM/yyyy";
@@ -126,6 +145,115 @@ namespace hastaTakipSistemi
                 if (dgvRandevular.Columns["RandevuSaati"] != null)
                     dgvRandevular.Columns["RandevuSaati"].DefaultCellStyle.Format = "HH:mm";
             }
+        }
+
+        private void ApplyModernRandevuTheme()
+        {
+            // Set form background to modern color with appointment theme
+            this.BackColor = Color.FromArgb(250, 248, 255); // Light purple background
+            
+            // Apply purple-themed styling to controls
+            ApplyRandevuStyling();
+        }
+
+        private void ApplyRandevuStyling()
+        {
+            foreach (Control control in this.Controls)
+            {
+                StyleRandevuControlsRecursively(control);
+            }
+        }
+
+        private void StyleRandevuControlsRecursively(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is Button button)
+                {
+                    StyleRandevuButton(button);
+                }
+                else if (control is TextBox textBox)
+                {
+                    StyleRandevuTextBox(textBox);
+                }
+                else if (control is ComboBox comboBox)
+                {
+                    StyleRandevuComboBox(comboBox);
+                }
+                else if (control is DateTimePicker dtp)
+                {
+                    StyleRandevuDateTimePicker(dtp);
+                }
+                
+                // Recursively style nested controls
+                if (control.HasChildren)
+                {
+                    StyleRandevuControlsRecursively(control);
+                }
+            }
+        }
+
+        private void StyleRandevuButton(Button button)
+        {
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            button.Cursor = Cursors.Hand;
+            button.Height = Math.Max(button.Height, 35);
+            
+            // Appointment-specific color scheme (purple theme)
+            if (button.Name.Contains("Kaydet") || button.Text.Contains("Kaydet"))
+            {
+                button.BackColor = Color.FromArgb(103, 58, 183); // Purple for save
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(81, 45, 168);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(103, 58, 183);
+            }
+            else if (button.Name.Contains("Sil") || button.Text.Contains("Sil"))
+            {
+                button.BackColor = Color.FromArgb(233, 30, 99); // Pink for delete
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(194, 24, 91);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(233, 30, 99);
+            }
+            else if (button.Name.Contains("Guncelle") || button.Text.Contains("Güncelle"))
+            {
+                button.BackColor = Color.FromArgb(156, 39, 176); // Deep purple for update
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(123, 31, 162);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(156, 39, 176);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(63, 81, 181); // Indigo for other actions
+                button.ForeColor = Color.White;
+                button.MouseEnter += (s, e) => button.BackColor = Color.FromArgb(48, 63, 159);
+                button.MouseLeave += (s, e) => button.BackColor = Color.FromArgb(63, 81, 181);
+            }
+        }
+
+        private void StyleRandevuTextBox(TextBox textBox)
+        {
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.BackColor = Color.White;
+            textBox.Font = new Font("Segoe UI", 9F);
+            textBox.ForeColor = Color.FromArgb(64, 64, 64);
+        }
+
+        private void StyleRandevuComboBox(ComboBox comboBox)
+        {
+            comboBox.FlatStyle = FlatStyle.Flat;
+            comboBox.BackColor = Color.White;
+            comboBox.Font = new Font("Segoe UI", 9F);
+            comboBox.ForeColor = Color.FromArgb(64, 64, 64);
+        }
+
+        private void StyleRandevuDateTimePicker(DateTimePicker dtp)
+        {
+            dtp.Font = new Font("Segoe UI", 9F);
+            dtp.CalendarForeColor = Color.FromArgb(64, 64, 64);
+            dtp.CalendarTitleBackColor = Color.FromArgb(103, 58, 183);
+            dtp.CalendarTitleForeColor = Color.White;
         }
 
         private void btnRandevuKaydet_Click(object sender, EventArgs e)
