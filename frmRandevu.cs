@@ -273,7 +273,6 @@ namespace hastaTakipSistemi
                 
                 // Create a simple status selection dialog
                 string[] statusOptions = { "Bekliyor", "Tamamlandı", "İptal" };
-                string message = $"Mevcut durum: {currentStatus}\n\nYeni durum seçin:";
                 
                 // Use a simple input dialog
                 frmStatusSelect statusForm = new frmStatusSelect(statusOptions, currentStatus);
