@@ -304,6 +304,9 @@ namespace hastaTakipSistemi
         {
             try
             {
+                // Show search loading indicator
+                ShowLoadingMessage("Arama yapılıyor...");
+                
                 SqlCommand ara = new SqlCommand("SELECT * FROM HastaBilgi WHERE " +
                     "Ad LIKE @arama OR Soyad LIKE @arama OR TC LIKE @arama OR " +
                     "Telefon LIKE @arama OR Sikayet LIKE @arama", bgl.baglan());
@@ -312,11 +315,99 @@ namespace hastaTakipSistemi
                 SqlDataAdapter da = new SqlDataAdapter(ara);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+                
+                // Hide loading
+                HideLoadingMessage();
+                
                 dataGridView1.DataSource = dt;
+                
+                // Show search results feedback
+                if (dt.Rows.Count == 0)
+                {
+                    ShowSearchNoResultsMessage($"'{aramaMetni}' için sonuç bulunamadı.");
+                }
+                else
+                {
+                    ShowSearchResultsMessage($"{dt.Rows.Count} sonuç bulundu.");
+                }
             }
             catch(Exception ex)
             {
-                MessageBox.Show($"Arama hatası: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                HideLoadingMessage();
+                ShowErrorMessage($"Arama hatası: {ex.Message}", "Arama Hatası");
+            }
+        }
+
+        private void ShowSearchNoResultsMessage(string message)
+        {
+            Label lblNoResults = new Label()
+            {
+                Text = message,
+                ForeColor = Color.FromArgb(158, 158, 158),
+                Font = new Font("Segoe UI", 10F, FontStyle.Italic),
+                AutoSize = true
+            };
+            
+            // Position the label below the grid if possible
+            try
+            {
+                lblNoResults.Location = new Point(dataGridView1.Location.X + 10, dataGridView1.Location.Y + dataGridView1.Height + 10);
+                this.Controls.Add(lblNoResults);
+                
+                // Remove after 3 seconds
+                Timer timer = new Timer();
+                timer.Interval = 3000;
+                timer.Tick += (s, e) => {
+                    if (this.Controls.Contains(lblNoResults))
+                    {
+                        this.Controls.Remove(lblNoResults);
+                        lblNoResults.Dispose();
+                    }
+                    timer.Stop();
+                    timer.Dispose();
+                };
+                timer.Start();
+            }
+            catch
+            {
+                // Fallback to status bar or simpler display
+                this.Text = $"Hasta Takip Sistemi - {message}";
+            }
+        }
+
+        private void ShowSearchResultsMessage(string message)
+        {
+            Label lblResults = new Label()
+            {
+                Text = message,
+                ForeColor = Color.FromArgb(46, 125, 50),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                AutoSize = true
+            };
+            
+            try
+            {
+                lblResults.Location = new Point(dataGridView1.Location.X + 10, dataGridView1.Location.Y + dataGridView1.Height + 10);
+                this.Controls.Add(lblResults);
+                
+                // Remove after 2 seconds
+                Timer timer = new Timer();
+                timer.Interval = 2000;
+                timer.Tick += (s, e) => {
+                    if (this.Controls.Contains(lblResults))
+                    {
+                        this.Controls.Remove(lblResults);
+                        lblResults.Dispose();
+                    }
+                    timer.Stop();
+                    timer.Dispose();
+                };
+                timer.Start();
+            }
+            catch
+            {
+                // Fallback to title bar display
+                this.Text = $"Hasta Takip Sistemi - {message}";
             }
         }
 
