@@ -1,0 +1,84 @@
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hastaTakip-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - hastaTakip-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourPassword123 -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Patient Tracking Application (Production)
+  hastaTakip-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: hastaTakip-app
+    environment:
+      - DB_CONNECTION_STRING=Data Source=sqlserver;Initial Catalog=HastaTakip;User Id=sa;Password=YourPassword123;Encrypt=False;
+      - DISPLAY_MODE=headless
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - hastaTakip-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Development Environment
+  hastaTakip-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: hastaTakip-dev
+    environment:
+      - DB_CONNECTION_STRING=Data Source=sqlserver;Initial Catalog=HastaTakip;User Id=sa;Password=YourPassword123;Encrypt=False;
+    volumes:
+      - .:/src
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - hastaTakip-network
+    ports:
+      - "4024:4024"  # Debug port
+    profiles:
+      - development
+
+  # SQL Server Management Studio (Optional)
+  # Uncomment if you want a web-based SQL management interface
+  # adminer:
+  #   image: adminer
+  #   container_name: hastaTakip-adminer
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - hastaTakip-network
+  #   profiles:
+  #     - development
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  hastaTakip-network:
+    driver: bridge

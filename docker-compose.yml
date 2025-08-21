@@ -1,0 +1,42 @@
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hastaTakip-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - hastaTakip-network
+    restart: unless-stopped
+
+  # Patient Tracking Application
+  # Note: This requires Windows containers due to .NET Framework and Windows Forms
+  hastaTakip-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hastaTakip-app
+    environment:
+      - DB_CONNECTION_STRING=Data Source=sqlserver;Initial Catalog=HastaTakip;User Id=sa;Password=YourPassword123;Encrypt=False;
+    depends_on:
+      - sqlserver
+    networks:
+      - hastaTakip-network
+    # Note: For GUI applications, additional configuration is needed
+    # This setup assumes headless or console operation
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  hastaTakip-network:
+    driver: bridge

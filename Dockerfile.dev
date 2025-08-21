@@ -1,0 +1,65 @@
+# Alternative Dockerfile with better practices and development stage
+# This version includes development tools and better layer caching
+
+# Use Windows Server Core with .NET Framework SDK for building
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8-windowsservercore-ltsc2022 AS build
+WORKDIR /src
+
+# Copy solution and project files first for better caching
+COPY *.sln ./
+COPY *.csproj ./
+
+# Restore packages
+RUN nuget restore hastaTakipSistemi.sln
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN msbuild hastaTakipSistemi.sln ^
+    /p:Configuration=Release ^
+    /p:Platform="Any CPU" ^
+    /p:OutputPath=C:\app\
+
+# Runtime image
+FROM mcr.microsoft.com/dotnet/framework/runtime:4.8-windowsservercore-ltsc2022 AS runtime
+WORKDIR /app
+
+# Install additional components if needed for GUI support
+# RUN Add-WindowsFeature Server-Gui-Shell, Server-Gui-Mgmt-Infra
+
+# Copy built application
+COPY --from=build C:/app/ .
+
+# Set environment variables
+ENV DB_CONNECTION_STRING=""
+ENV DISPLAY_MODE=headless
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD powershell -command "if (Get-Process hastaTakipSistemi -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+
+# Create a startup script for better control
+RUN echo 'echo Starting Hasta Takip Sistemi...' > startup.bat && \
+    echo 'if "%DB_CONNECTION_STRING%"=="" (' >> startup.bat && \
+    echo '    echo Warning: DB_CONNECTION_STRING not set, using default' >> startup.bat && \
+    echo ')' >> startup.bat && \
+    echo 'hastaTakipSistemi.exe' >> startup.bat
+
+# Use the startup script
+CMD ["cmd", "/c", "startup.bat"]
+
+# Development stage - includes development tools
+FROM build AS development
+WORKDIR /src
+
+# Install development tools
+RUN choco install -y visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.MSBuildTools"
+
+# Expose debugging port
+EXPOSE 4024
+
+# Volume for source code during development
+VOLUME ["C:/src"]
+
+CMD ["powershell"]

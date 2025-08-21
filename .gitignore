@@ -1,0 +1,23 @@
+# Build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# Visual Studio files
+.vs/
+*.vscode/
+
+# Temporary files
+*~
+*.tmp
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Docker-related
+.dockerignore
