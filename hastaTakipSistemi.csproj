@@ -135,6 +135,15 @@
     <EmbeddedResource Include="frmKayit.resx">
       <DependentUpon>frmKayit.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmRandevu.resx">
+      <DependentUpon>frmRandevu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmStatusSelect.resx">
+      <DependentUpon>frmStatusSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmYedeklemevYonetim.resx">
+      <DependentUpon>frmYedeklemevYonetim.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
